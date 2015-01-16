@@ -1,0 +1,21 @@
+{
+  "name": "vibrateular",
+  "version": "0.0.1",
+  "description": "Angularjs plugin to use HTML5 vibrate API",
+  "main": "",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "keywords": [
+    "Angularjs",
+    "vibrate",
+    "phone",
+    "vibrateular"
+  ],
+  "author": "jonnie",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-connect": "^2.2.0"
+  }
+}
