@@ -37,11 +37,21 @@ var htmlFiles = ['app/index.html']
 		// preserving the folder structure
 		gulp.src(htmlFiles, { base: './app' })
 			.pipe(gulp.dest('dev/'));
+
+
 	});
+gulp.task('watch-html', function(){
+
+	gulp.watch("app/**/*.html", ['html', 'bs-reload']);
+})
+
+gulp.task('bs-reload', function () {
+	browserSync.reload();
+});
 
 
 // watch files for changes and reload
-gulp.task('serve', ['js2', 'html'], function() {
+gulp.task('serve', ['js2', 'watch-html'], function() {
 	browserSync({
 		server: {
 			baseDir: 'dev'
@@ -74,6 +84,7 @@ function createBundle(bundler) {
 			.pipe(sourcemaps.write('./')) // writes .map file
 			//
 			.pipe(gulp.dest(bundler.dest));
+		browserSync.reload();
 	})();
 };
 gulp.task('js2', function(){
