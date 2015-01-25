@@ -40,10 +40,20 @@ var htmlFiles = ['app/index.html']
 
 
 	});
+gulp.task('cp-resources', function(){
+	gulp.src('app/resources/**/*', { base: './app'})
+		.pipe(gulp.dest('dev/'));
+});
+
+gulp.task('watch-resources', function(){
+
+	gulp.watch('app/resources/**/*', ['cp-resources', 'bs-reload']);
+});
+
 gulp.task('watch-html', function(){
 
 	gulp.watch("app/**/*.html", ['html', 'bs-reload']);
-})
+});
 
 gulp.task('bs-reload', function () {
 	browserSync.reload();
@@ -51,7 +61,7 @@ gulp.task('bs-reload', function () {
 
 
 // watch files for changes and reload
-gulp.task('serve', ['js2', 'watch-html'], function() {
+gulp.task('serve', ['js2', 'html', 'watch-html', 'cp-resources', 'watch-resources'], function() {
 	browserSync({
 		server: {
 			baseDir: 'dev'

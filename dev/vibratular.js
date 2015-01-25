@@ -6,8 +6,8 @@ angular.module('vibratular', [])
 	.directive('vb', require('./vb.directive.js'))
 	.controller('test', function($scope){
 		$scope.hello = "Hello World!!"
-		$scope.pattern = [50, 100, 200, 400, 800, 1000];
-		$scope.pattern2 = [{on:50, off:0}, {on:100, off:100}, {on:200, off:200}, {on:400, off:400}, {on:800, off:800}, {on:1000, off:1000}];
+		$scope.pattern = [50, 100, 200, 100, 400, 100, 800, 100, 1000];
+		$scope.pattern2 = [1000];
 	});
 
 },{"./vb.directive.js":"/Users/i311181/Repo/mine/slush/vibrateular/app/vibratular/vb.directive.js"}],"/Users/i311181/Repo/mine/slush/vibrateular/app/vibratular/vb.directive.js":[function(require,module,exports){
@@ -15,61 +15,86 @@ angular.module('vibratular', [])
  * Created by jonnie on 25 Jan 2015.
  */
 
-module.exports = function ($window){
-	//var vb =
+module.exports = function(){
 
-	function vibrate(time, pattern, loop){
-		var _time = time || 100;
+	function vibrate(pattern, _sleep, delay, loop, animation){
 
-		if(!pattern && !loop ) {
-			console.log('pattern', pattern);
-			console.log('loop', loop);
-			$window.navigator.vibrate(_time);
-			return;
+		if(_sleep){
+			pattern = addSleepAndLoops(pattern, _sleep, delay, loop);
 		}
-		if(pattern){
-			var count = loop || 1;
-			console.log('pattern', pattern);
-			vibratePattern(pattern);
-			/*for(var i = 0; i < count; i++){
-				for(var index = 0, len = pattern.length; index < len ; index++){
-					console.log('index['+index+']', pattern[index]);
-					setTimeout($window.navigator.vibrate(pattern[index]), pattern[index] + 100);
+		console.log('pattern', pattern);
+		window.navigator.vibrate(pattern);
+		setShakeInterval(pattern, delay, animation);
+
+	}
+
+	var body = document.getElementsByTagName('body')[0];
+
+	function setShakeInterval(intervals, initialWait){
+		var animate;
+
+		var index = 0;
+		var len = intervals.length;
+		var callback = function( ){
+			if( index < len ) {
+				if (animate) {
+					body.classList.add(animation);
+					animate = false;
+				} else {
+					body.classList.remove(animation);
+					animate = true;
 				}
-			}*/
+				index++;
+				setTimeout(callback, intervals[index]);
+			}else {
+				body.classList.remove(animation);
+			}
+		};
+
+		if(initialWait){
+			setTimeout(callback(intervals[index]))
+			index++
 		}
-	}// end vibrate
-
-	function vibratePattern (pattern, index) {
-
-		var i = index || 0;
-		var timeout = //pattern[i] ||
-			i > 0 ? pattern[i - 1] +200 : 0;
-
-		setTimeout(function () {
-			$window.navigator.vibrate(pattern[i]);
-			console.log('i = ' + i + ' | pattern['+i+'] = '+pattern[i]+ ' | timeout = '+timeout);
-			if (i < pattern.length - 1) vibratePattern(pattern, i+1);      //  decrement i and call myLoop again if i > 0
-		}, timeout);
+		else{
+			callback(intervals[index]);
+		}
 	};
 
-	return{
+	function addSleepAndLoops(pattern, sleeptime, intialSleep, loops){
+		var start = intialSleep ? 0 : 1;
+		var numOfLoops = loops || 1;
+		var p = pattern.slice();
+		for(var i = start; i < p.length +1 ; i++){
+			p.splice(i,0, sleeptime);
+			i++;
+		};
+		if(!loops || loops === 1) return p;
+
+		var loopedPattern = [];
+		for(var i = 0; i < numOfLoops; i++) {
+			var loop = p.slice();
+			loopedPattern = loopedPattern.concat(loop);
+		}
+
+		return loopedPattern;
+	}
+
+
+	return {
 		restrict: 'A',
 		scope:{
 			time: '@vbTime',
-			pattern: '=vbPattern'
+			pattern: '=vbPattern',
+			vbSleep: '@vbSleep',
+			vbLoop: '@vbLoop'
 		},
 		link: function(scope, elem, attrs){
-			console.log('scope.vbTime', scope.time);
-			//elem[0].onclick($window.navigator.vibrate(1000));
 			elem.bind('click', function(){
-
-				vibrate(scope.time, scope.pattern, null);
+				vibrate(scope.pattern, scope.vbSleep, false, 1, 'vibrate');
 				scope.$apply();
-			})
-
+			});
 		}
-	}
+	};
 
 };
 },{}]},{},["./app/vibratular"]);
